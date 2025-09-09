@@ -9,9 +9,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const port = process.env.PORT || 8080;
 const base = process.env.BASE || "/";
 const ABORT_DELAY = 10000;
-const GRAPHQL_URL = new URL(
-  "https://swapi-graphql.netlify.app/.netlify/functions/index",
-);
+const GRAPHQL_URL = new URL("https://swapi-graphql.netlify.app/graphql");
 
 // Cached production assets
 const templateHtml = isProduction
@@ -32,7 +30,7 @@ app.use(
       }
       return "silent";
     },
-  }),
+  })
 );
 
 // Add Vite or respective production middlewares
@@ -114,7 +112,9 @@ app.use("*", async (req, res) => {
 
         const { recordSource } = context;
         res.write(
-          `<script>window.__RECORD_SOURCE = ${JSON.stringify(recordSource.toJSON())}</script>`,
+          `<script>window.__RECORD_SOURCE = ${JSON.stringify(
+            recordSource.toJSON()
+          )}</script>`
         );
 
         res.write(bodyStart);
