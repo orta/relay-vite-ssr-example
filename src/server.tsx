@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import {
   type RenderToPipeableStreamOptions,
   renderToPipeableStream,
@@ -99,7 +99,9 @@ export function render(
       <HelmetProvider context={helmetContext}>
         <ErrorBoundary fallback={<div>Something went wrong!</div>}>
           <RelayEnvironmentProvider environment={environment}>
-            <ServerRouter routes={routes} context={staticHandlerContext} />
+            <Suspense fallback={<div>Loading...</div>}>
+              <ServerRouter routes={routes} context={staticHandlerContext} />
+            </Suspense>
           </RelayEnvironmentProvider>
         </ErrorBoundary>
       </HelmetProvider>

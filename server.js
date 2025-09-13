@@ -45,12 +45,13 @@ if (!isProduction) {
 
   // Use Vite's middleware directly with middie, but configure it to not handle HTML requests
   fastify.use((req, res, next) => {
-    // Don't let Vite handle HTML pages - pass them to our SSR handler
-    if (req.url === '/' || !req.url.includes('.')) {
-      next();
+    // Let Vite handle its special URLs and assets, but not HTML pages
+    if (req.url.startsWith('/@') || req.url.includes('.')) {
+      vite.middlewares(req, res, next);
       return;
     }
-    vite.middlewares(req, res, next);
+    // Pass HTML pages to our SSR handler
+    next();
   });
 } else {
   await fastify.register(import("@fastify/compress"));
@@ -106,8 +107,8 @@ fastify.get("*", (request, reply) => {
             reply.send("<h1>Something went wrong</h1>");
           }
         },
-        onAllReady() {
-          console.log("onAllReady called");
+        onShellReady() {
+          console.log("onShellReady called - starting to stream");
           // Hijack the response to prevent Fastify from sending headers
           reply.hijack();
           const response = reply.raw;
@@ -147,6 +148,9 @@ fastify.get("*", (request, reply) => {
           });
 
           pipe(transformStream);
+        },
+        onAllReady() {
+          console.log("onAllReady called - all content ready");
         },
         onError(error) {
           didError = true;
