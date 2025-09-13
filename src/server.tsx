@@ -12,20 +12,22 @@ import { routes } from "./routes";
 import { RecordSource } from "relay-runtime";
 import { Environment } from "react-relay";
 import { createEnvironment } from "./environment";
-import express from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 
 import { HelmetProvider } from "react-helmet-async";
 import { ServerRouter } from "./components/ServerRouter";
 import { RelayEnvironmentProvider } from "react-relay";
 import { ErrorBoundary } from "react-error-boundary";
 
-const createFetchRequest = (req: express.Request, res: express.Response) => {
-  const origin = `${req.protocol}://${req.get("host")}`;
+const createFetchRequest = (req: FastifyRequest, res: FastifyReply) => {
+  debugger;
+  const origin = `${req.protocol}://${req.host}`;
   // Note: This had to take originalUrl into account for presumably vite's proxying
-  const url = new URL(req.originalUrl || req.url, origin);
+  const url = new URL(req.url, origin);
+  console.log("SSR: Fetching URL", url.href);
 
   const controller = new AbortController();
-  res.on("close", () => controller.abort());
+  res.raw.on("close", () => controller.abort());
 
   const headers = new Headers();
 
@@ -48,6 +50,8 @@ const createFetchRequest = (req: express.Request, res: express.Response) => {
     body: req.method !== "GET" && req.method !== "HEAD" ? req.body : undefined,
   };
 
+  console.log("SSR: Fetch request init", init);
+
   return new Request(url.href, init);
 };
 
@@ -61,8 +65,8 @@ interface Context {
 
 export const createContext = async (
   graphqlUrl: string,
-  req: express.Request,
-  res: express.Response,
+  req: FastifyRequest,
+  res: FastifyReply
 ): Promise<Context> => {
   const recordSource = new RecordSource();
   const environment = createEnvironment(graphqlUrl, recordSource);
@@ -74,19 +78,21 @@ export const createContext = async (
   if (staticHandlerContext instanceof Response) {
     throw staticHandlerContext;
   }
+  console.log("SSR: Created context for ", req.url);
+  console.log("SSR: Static handler context", staticHandlerContext);
 
   return {
     routes: dataRoutes,
     staticHandlerContext,
     environment,
     helmetContext: {},
-    recordSource: new RecordSource(),
+    recordSource,
   };
 };
 
 export function render(
   { environment, routes, staticHandlerContext, helmetContext }: Context,
-  options: RenderToPipeableStreamOptions,
+  options: RenderToPipeableStreamOptions
 ) {
   return renderToPipeableStream(
     <React.StrictMode>
@@ -98,6 +104,6 @@ export function render(
         </ErrorBoundary>
       </HelmetProvider>
     </React.StrictMode>,
-    options,
+    options
   );
 }

@@ -1,12 +1,10 @@
 import fs from "node:fs/promises";
-import express from "express";
-import proxy from "express-http-proxy";
+import Fastify from "fastify";
 import { Transform } from "node:stream";
-import logger from "pino-http";
 
 // Constants
 const isProduction = process.env.NODE_ENV === "production";
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8082;
 const base = process.env.BASE || "/";
 const ABORT_DELAY = 10000;
 const GRAPHQL_URL = new URL("https://swapi-graphql.netlify.app/graphql");
@@ -17,11 +15,9 @@ const templateHtml = isProduction
   : "";
 
 // Create http server
-const app = express();
-
-// Add logging
-app.use(
-  logger({
+const fastify = Fastify({
+  logger: {
+    level: "info",
     customLogLevel: function (req, res, err) {
       if (res.statusCode >= 400 && res.statusCode < 500) {
         return "warn";
@@ -30,8 +26,8 @@ app.use(
       }
       return "silent";
     },
-  })
-);
+  },
+});
 
 // Add Vite or respective production middlewares
 let vite;
@@ -42,107 +38,139 @@ if (!isProduction) {
     appType: "custom",
     base,
   });
-  app.use(vite.middlewares);
+
+  // Register middie for Express middleware compatibility
+  await fastify.register(import("@fastify/middie"));
+  console.log("🚀 Vite dev server starting");
+
+  // Use Vite's middleware directly with middie, but configure it to not handle HTML requests
+  fastify.use((req, res, next) => {
+    // Don't let Vite handle HTML pages - pass them to our SSR handler
+    if (req.url === '/' || !req.url.includes('.')) {
+      next();
+      return;
+    }
+    vite.middlewares(req, res, next);
+  });
 } else {
-  const compression = (await import("compression")).default;
-  const sirv = (await import("sirv")).default;
-  app.use(compression());
-  app.use(base, sirv("./dist/client", { extensions: [] }));
+  await fastify.register(import("@fastify/compress"));
+  await fastify.register(import("@fastify/static"), {
+    root: "./dist/client",
+    prefix: base,
+  });
 }
 
-const graphqlProxy = proxy(GRAPHQL_URL.origin, {
-  proxyReqPathResolver: function () {
-    return GRAPHQL_URL.pathname;
-  },
+await fastify.register(import("@fastify/http-proxy"), {
+  upstream: GRAPHQL_URL.origin,
+  prefix: "/graphql",
+  rewritePrefix: GRAPHQL_URL.pathname,
 });
-app.use("/graphql", graphqlProxy);
 
 // Serve HTML
-app.use("*", async (req, res) => {
-  try {
-    const url = req.originalUrl.replace(base, "");
+fastify.get("*", (request, reply) => {
+  console.log("Route handler called for:", request.url);
+  const url = request.url.replace(base, "");
 
-    let template;
-    let serverModule;
-    if (!isProduction) {
-      // Always read fresh template in development
-      template = await fs.readFile("./index.html", "utf-8");
-      template = await vite.transformIndexHtml(url, template);
-      serverModule = await vite.ssrLoadModule("/src/server.tsx");
-    } else {
-      template = templateHtml;
-      serverModule = await import("./dist/server/server.js");
-    }
+  let template;
+  let serverModule;
+  
+  Promise.resolve()
+    .then(async () => {
+      console.log("Loading modules...");
+      if (!isProduction) {
+        // Always read fresh template in development
+        template = await fs.readFile("./index.html", "utf-8");
+        template = await vite.transformIndexHtml(url, template);
+        serverModule = await vite.ssrLoadModule("/src/server.tsx");
+      } else {
+        template = templateHtml;
+        serverModule = await import("./dist/server/server.js");
+      }
+      console.log("Modules loaded, creating context...");
 
-    const { render, createContext } = serverModule;
-    const [htmlStart, restHtml] = template.split(`<!--app-head-->`);
-    const [bodyStart, htmlEnd] = restHtml.split(`<!--app-html-->`);
+      const { render, createContext } = serverModule;
+      const [htmlStart, restHtml] = template.split(`<!--app-head-->`);
+      const [bodyStart, htmlEnd] = restHtml.split(`<!--app-html-->`);
 
-    const context = await createContext(GRAPHQL_URL, req, res);
+      const context = await createContext(GRAPHQL_URL, request, reply);
+      console.log("Context created, rendering...");
 
-    let didError = false;
+      let didError = false;
 
-    const { pipe, abort } = render(context, {
-      onShellError() {
-        res.status(500);
-        res.set({ "Content-Type": "text/html" });
-        res.send("<h1>Something went wrong</h1>");
-      },
-      onAllReady() {
-        res.status(didError ? 500 : 200);
-        res.set({ "Content-Type": "text/html" });
+      const { pipe, abort } = render(context, {
+        onShellError() {
+          console.log("onShellError called");
+          if (!reply.sent) {
+            reply.code(500);
+            reply.header("Content-Type", "text/html");
+            reply.send("<h1>Something went wrong</h1>");
+          }
+        },
+        onAllReady() {
+          console.log("onAllReady called");
+          // Hijack the response to prevent Fastify from sending headers
+          reply.hijack();
+          const response = reply.raw;
+          
+          response.statusCode = didError ? 500 : 200;
+          response.setHeader("Content-Type", "text/html");
 
-        const transformStream = new Transform({
-          transform(chunk, encoding, callback) {
-            res.write(chunk, encoding);
-            callback();
-          },
-        });
+          const transformStream = new Transform({
+            transform(chunk, encoding, callback) {
+              response.write(chunk, encoding);
+              callback();
+            },
+          });
 
-        res.write(htmlStart);
+          response.write(htmlStart);
 
-        const { helmet } = context.helmetContext;
-        if (helmet) {
-          res.write(helmet.title.toString());
-          res.write(helmet.priority.toString());
-          res.write(helmet.meta.toString());
-          res.write(helmet.link.toString());
-          res.write(helmet.script.toString());
-        }
+          const { helmet } = context.helmetContext;
+          if (helmet) {
+            response.write(helmet.title.toString());
+            response.write(helmet.priority.toString());
+            response.write(helmet.meta.toString());
+            response.write(helmet.link.toString());
+            response.write(helmet.script.toString());
+          }
 
-        const { recordSource } = context;
-        res.write(
-          `<script>window.__RECORD_SOURCE = ${JSON.stringify(
-            recordSource.toJSON()
-          )}</script>`
-        );
+          const { recordSource } = context;
+          response.write(
+            `<script>window.__RECORD_SOURCE = ${JSON.stringify(
+              recordSource.toJSON()
+            )}</script>`
+          );
 
-        res.write(bodyStart);
+          response.write(bodyStart);
 
-        transformStream.on("finish", () => {
-          res.end(htmlEnd);
-        });
+          transformStream.on("finish", () => {
+            response.end(htmlEnd);
+          });
 
-        pipe(transformStream);
-      },
-      onError(error) {
-        didError = true;
-        console.error(error);
-      },
+          pipe(transformStream);
+        },
+        onError(error) {
+          didError = true;
+          console.error("Render error:", error);
+        },
+      });
+
+      setTimeout(() => {
+        abort();
+      }, ABORT_DELAY);
+    })
+    .catch((e) => {
+      console.error("Route handler error:", e);
+      vite?.ssrFixStacktrace(e);
+      console.error(e.stack);
+      if (!reply.sent) {
+        reply.code(500).send(e.stack);
+      }
     });
-
-    setTimeout(() => {
-      abort();
-    }, ABORT_DELAY);
-  } catch (e) {
-    vite?.ssrFixStacktrace(e);
-    console.error(e.stack);
-    res.status(500).end(e.stack);
-  }
 });
 
 // Start http server
-app.listen(port, () => {
-  console.log(`🚀 Server started at http://localhost:${port}`);
+fastify.listen({ port, host: "0.0.0.0" }, (err, address) => {
+  if (err) throw err;
+  console.log(`🚀 Server started at ${address}`);
   console.log(`🔗 GraphQL host: ${GRAPHQL_URL}`);
 });

@@ -13,22 +13,22 @@ interface InjectedWindow extends Window {
 }
 
 const recordSource = new RecordSource(
-  (window as unknown as InjectedWindow).__RECORD_SOURCE,
+  (window as unknown as InjectedWindow).__RECORD_SOURCE
 );
 const environment = createEnvironment(
   "http://localhost:8080/graphql",
-  recordSource,
+  recordSource
 );
 
 ReactDOM.hydrateRoot(
   document.getElementById("root")!,
   <React.StrictMode>
     <HelmetProvider>
-      <ErrorBoundary fallback={<div>Something went wrong :(</div>}>
+      <ErrorBoundary fallback={<div>Something went wrong :</div>}>
         <RelayEnvironmentProvider environment={environment}>
           <BrowserRouter />
         </RelayEnvironmentProvider>
       </ErrorBoundary>
     </HelmetProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
