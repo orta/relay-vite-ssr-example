@@ -82,23 +82,23 @@ fastify.get("*", (request, reply) => {
         // Always read fresh template in development
         template = await fs.readFile("./index.html", "utf-8");
         template = await vite.transformIndexHtml(url, template);
-        serverModule = await vite.ssrLoadModule("/src/server.tsx");
+        serverModule = await vite.ssrLoadModule("/src/wouter-server.tsx");
       } else {
         template = templateHtml;
         serverModule = await import("./dist/server/server.js");
       }
       console.log("Modules loaded, creating context...");
 
-      const { render, createContext } = serverModule;
+      const { renderWouter, createWouterContext } = serverModule;
       const [htmlStart, restHtml] = template.split(`<!--app-head-->`);
       const [bodyStart, htmlEnd] = restHtml.split(`<!--app-html-->`);
 
-      const context = await createContext(GRAPHQL_URL, request, reply);
+      const context = await createWouterContext(GRAPHQL_URL, request, reply);
       console.log("Context created, rendering...");
 
       let didError = false;
 
-      const { pipe, abort } = render(context, {
+      const { pipe, abort } = renderWouter(context, {
         onShellError() {
           console.log("onShellError called");
           if (!reply.sent) {
@@ -134,11 +134,20 @@ fastify.get("*", (request, reply) => {
             response.write(helmet.script.toString());
           }
 
-          const { recordSource } = context;
+          console.log("About to serialize record source and loader data...");
+          const { environment, loaderData } = context;
+          // Get the record source from the environment after rendering
+          const recordSource = environment.getStore().getSource();
+          const recordData = recordSource.toJSON();
+          console.log("Record source keys:", Object.keys(recordData));
+          console.log("Record source sample:", JSON.stringify(recordData).substring(0, 200));
+          console.log("Loader data:", loaderData);
+          
           response.write(
-            `<script>window.__RECORD_SOURCE = ${JSON.stringify(
-              recordSource.toJSON()
-            )}</script>`
+            `<script>window.__RECORD_SOURCE = ${JSON.stringify(recordData)}</script>`
+          );
+          response.write(
+            `<script>window.__LOADER_DATA = ${JSON.stringify(loaderData)}</script>`
           );
 
           response.write(bodyStart);

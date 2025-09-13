@@ -1,6 +1,10 @@
-import { Outlet } from "./Outlet";
+import React from "react";
 import "./Scaffold.css";
 
-export const Scaffold = () => {
-  return <Outlet />;
+interface ScaffoldProps {
+  children: React.ReactNode;
+}
+
+export const Scaffold: React.FC<ScaffoldProps> = ({ children }) => {
+  return <>{children}</>;
 };

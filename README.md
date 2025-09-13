@@ -1,10 +1,10 @@
-# React Relay Router Vite SSR Example
+# React Relay Wouter Vite SSR Example
 
-An example with `react-relay`, `react-router`, `vite` and `SSR`
+An example with `react-relay`, `wouter`, `vite` and `SSR`
 
 To start the project, run:
 
 ```bash
-pnpm install
-pnpm dev
+yarn install
+yarn dev
 ```

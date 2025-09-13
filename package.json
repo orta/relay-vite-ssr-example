@@ -1,5 +1,5 @@
 {
-  "name": "react-router-ssr",
+  "name": "vite-wouter-fastify-ssr",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,7 @@
     "dev:serve": "node server | pino-pretty",
     "build": "relay-compiler && tsc -b && concurrently \"npm:build:client\" \"npm:build:server\"",
     "build:client": "vite build --outDir dist/client",
-    "build:server": "vite build --ssr src/server.tsx --outDir dist/server",
+    "build:server": "vite build --ssr src/wouter-server.tsx --outDir dist/server",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "cross-env NODE_ENV=production node server"
   },
@@ -24,15 +24,14 @@
     "react-error-boundary": "^4.0.13",
     "react-helmet-async": "^2.0.5",
     "react-relay": "^20.1.1",
-    "react-router-dom": "^6.26.0",
-    "relay-runtime": "^20.1.1"
+    "relay-runtime": "^20.1.1",
+    "wouter": "^3.7.1"
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/react-relay": "^16.0.6",
-    "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
     "@vitejs/plugin-react": "^4.3.1",

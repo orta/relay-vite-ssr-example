@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { PropsWithChildren } from "react";
 
 interface CardsProps extends PropsWithChildren {}
@@ -17,7 +17,7 @@ export const Card = ({ title, data, linkTo }: CardProps) => {
     <div className="card">
       {title &&
         (linkTo ? (
-          <Link className="title" to={linkTo}>
+          <Link className="title" href={linkTo}>
             {title}
           </Link>
         ) : (

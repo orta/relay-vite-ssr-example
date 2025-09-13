@@ -1,6 +1,6 @@
 import { useFilmScaffoldQuery } from "../loaders/FilmScaffold";
-import { Link } from "react-router-dom";
-import { Outlet } from "react-router-dom";
+import { Link } from "wouter";
+// Note: Wouter doesn't have Outlet, we'll need to handle this differently
 
 export const FilmScaffold = () => {
   const {
@@ -12,13 +12,13 @@ export const FilmScaffold = () => {
   }
   return (
     <>
-      <Link to="/">Home</Link>
+      <Link href="/">Home</Link>
       <h1>{film.title}</h1>
       <div className="nav">
-        <Link to={`/film/${id}/people`}>People</Link>
-        <Link to={`/film/${id}/planets`}>Planets</Link>
+        <Link href={`/film/${id}/people`}>People</Link>
+        <Link href={`/film/${id}/planets`}>Planets</Link>
       </div>
-      <Outlet />
+      {/* TODO: Handle nested routing without Outlet */}
     </>
   );
 };
