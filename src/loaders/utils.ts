@@ -52,35 +52,27 @@ export const usePreloaded = <TQuery extends OperationType>() => {
   const loaderData = useWouterLoaderData();
   const environment = useRelayEnvironment();
 
+  console.log('🔍 usePreloaded called:', {
+    hasLoaderData: !!loaderData,
+    isClient: typeof window !== 'undefined'
+  });
+
   if (!loaderData) {
-    // During client-side hydration, loader data might not be available
-    // In this case, we should fall back to a client-side query
-    // For now, throw a more descriptive error
     throw new Error(
-      "No loader data available during hydration. " +
-        "This suggests the server-side loader data wasn't properly serialized to the client, " +
-        "or this component is being rendered without proper route loader setup."
+      "No loader data available. This component must be rendered within a route that has a loader."
     );
   }
 
-  const { variables, query, graphql, ...rest } =
-    loaderData as PreloadedData<TQuery>;
+  const { variables, graphql } = loaderData as { variables: any, graphql: GraphQLTaggedNode };
   
-  // Check if we're on the client side and the query environment doesn't match
-  const isClient = typeof window !== 'undefined';
-  if (isClient && query.environment !== environment) {
-    // Reload the query with the current client environment
-    const reloadedData = reload(environment, loaderData as PreloadedData<TQuery>);
-    return {
-      variables: reloadedData.variables,
-      query: usePreloadedQuery<TQuery>(reloadedData.graphql, reloadedData.query),
-      ...rest,
-    };
-  }
-
+  console.log('🔧 Creating fresh PreloadedQuery from current environment');
+  
+  // Always create a fresh PreloadedQuery from the current environment
+  // This ensures we use the environment's record source data (populated from __RECORD_SOURCE)
+  const query = loadQuery<TQuery>(environment, graphql, variables || {});
+  
   return {
-    variables,
+    variables: variables || {},
     query: usePreloadedQuery<TQuery>(graphql, query),
-    ...rest,
   };
 };

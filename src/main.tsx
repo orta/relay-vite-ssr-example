@@ -2,10 +2,7 @@ import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { RecordSource } from "relay-runtime";
 import { createEnvironment } from "./environment";
-import { RelayEnvironmentProvider } from "react-relay";
-import { ErrorBoundary } from "react-error-boundary";
 import { WouterApp } from "./components/WouterApp";
-import { HelmetProvider } from "react-helmet-async";
 
 interface InjectedWindow extends Window {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

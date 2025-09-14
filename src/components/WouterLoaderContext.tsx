@@ -23,6 +23,7 @@ export const useWouterLoaderData = () => {
   // During hydration, check if loader data is available in window
   if (!context?.loaderData && typeof window !== 'undefined') {
     const windowLoaderData = (window as any).__LOADER_DATA;
+    console.log('🔍 Using window.__LOADER_DATA:', windowLoaderData);
     if (windowLoaderData) {
       return windowLoaderData;
     }
@@ -31,6 +32,8 @@ export const useWouterLoaderData = () => {
   if (!context) {
     throw new Error("useWouterLoaderData must be used within a WouterLoaderProvider");
   }
+  
+  console.log('🔍 Using context loader data:', context.loaderData);
   return context.loaderData;
 };
 

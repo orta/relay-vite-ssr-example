@@ -143,11 +143,19 @@ fastify.get("*", (request, reply) => {
           console.log("Record source sample:", JSON.stringify(recordData).substring(0, 200));
           console.log("Loader data:", loaderData);
           
+          // Only serialize the Relay environment store - following React Router pattern
           response.write(
             `<script>window.__RECORD_SOURCE = ${JSON.stringify(recordData)}</script>`
           );
+          
+          // Serialize essential loader metadata for client-side route matching
+          const serializableLoaderData = loaderData ? {
+            graphql: loaderData.graphql,
+            variables: loaderData.variables,
+          } : null;
+          
           response.write(
-            `<script>window.__LOADER_DATA = ${JSON.stringify(loaderData)}</script>`
+            `<script>window.__LOADER_DATA = ${JSON.stringify(serializableLoaderData)}</script>`
           );
 
           response.write(bodyStart);
