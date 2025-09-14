@@ -6,7 +6,7 @@ import { createEnvironment } from "./environment"
 import { FastifyRequest, FastifyReply } from "fastify"
 // No need to import memoryLocation for SSR
 
-import { WouterApp } from "./components/WouterApp"
+import { WouterApp } from "./app/WouterApp"
 import { createWouterRoutes, matchRoute, loadRouteData, type WouterSSRContext, type RouteMatch } from "./wouter-routes"
 
 // Create fetch request for loaders

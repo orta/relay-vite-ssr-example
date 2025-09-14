@@ -1,5 +1,5 @@
-import { useFilmsPageQuery } from "../loaders/FilmsPage"
-import { Films } from "./Films"
+import { useFilmsPageQuery } from "../queries/FilmsPageQuery"
+import { Films } from "../components/Films"
 
 export const FilmsPage = () => {
   const { query } = useFilmsPageQuery()

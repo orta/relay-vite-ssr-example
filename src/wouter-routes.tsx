@@ -1,5 +1,5 @@
 import { Environment } from "react-relay"
-import { LoaderFn } from "./loaders/utils"
+import { LoaderFn } from "./queries/utils"
 
 // Route definition for Wouter
 export interface WouterRoute {
@@ -17,15 +17,14 @@ export interface RouteMatch {
 }
 
 // Import components and loaders
-import { Scaffold } from "./components/Scaffold"
-import { FilmsPage } from "./components/FilmsPage"
-import { loadFilmsPageQuery } from "./loaders/FilmsPage"
-import { FilmScaffold } from "./components/FilmScaffold"
-import { loadFilmScaffoldQuery } from "./loaders/FilmScaffold"
-import { FilmPeoplePage } from "./components/FilmPeoplePage"
-import { loadFilmPeoplePageQuery } from "./loaders/FilmPeoplePage"
-import { FilmPlanetsPage } from "./components/FilmPlanetsPage"
-import { loadFilmPlanetsPageQuery } from "./loaders/FilmPlanetsPage"
+import { FilmsPage } from "./pages/FilmsPage"
+import { loadFilmsPageQuery } from "./queries/FilmsPageQuery"
+
+import { FilmPeoplePage } from "./pages/FilmPeoplePage"
+import { loadFilmPeoplePageQuery } from "./queries/FilmPeoplePageQuery"
+
+import { FilmPlanetsPage } from "./pages/FilmPlanetsPage"
+import { loadFilmPlanetsPageQuery } from "./queries/FilmPlanetsPageQuery"
 
 export const createWouterRoutes = (environment: Environment): WouterRoute[] => [
   {
@@ -37,11 +36,6 @@ export const createWouterRoutes = (environment: Environment): WouterRoute[] => [
     path: "/film/:id/planets",
     component: FilmPlanetsPage,
     loader: loadFilmPlanetsPageQuery(environment),
-  },
-  {
-    path: "/film/:id",
-    component: FilmScaffold,
-    loader: loadFilmScaffoldQuery(environment),
   },
   {
     path: "/",

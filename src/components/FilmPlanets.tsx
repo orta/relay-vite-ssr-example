@@ -32,6 +32,7 @@ export const FilmPlanets = ({ film: filmFragment }: Props) => {
     hasNext,
     isLoadingNext,
   } = usePaginationFragment(FilmPlanetsFragment, filmFragment)
+
   return (
     <>
       <Helmet title={`${title} | Planets`} />

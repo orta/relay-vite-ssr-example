@@ -5,6 +5,7 @@ import { FilmPeoplePageQuery as FilmPeoplePageQueryType } from "./__generated__/
 const FilmPeoplePageQuery = graphql`
   query FilmPeoplePageQuery($id: ID!) {
     film(id: $id) {
+      ...FilmLayout
       ...FilmPeopleFragment
     }
   }
@@ -12,12 +13,8 @@ const FilmPeoplePageQuery = graphql`
 
 export const loadFilmPeoplePageQuery = (environment: Environment) => {
   return ({ params: { id } }: LoaderArgs) => {
-    if (!id) {
-      throw new Response("Not Found", { status: 404 })
-    }
-    return preload<FilmPeoplePageQueryType>(environment, FilmPeoplePageQuery, {
-      id,
-    })
+    if (!id) throw new Response("id was not given for ", { status: 404 })
+    return preload<FilmPeoplePageQueryType>(environment, FilmPeoplePageQuery, { id })
   }
 }
 

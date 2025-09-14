@@ -7,7 +7,7 @@ import { LoadMore } from "./LoadMore"
 
 const FilmPeopleFragment = graphql`
   fragment FilmPeopleFragment on Film
-  @refetchable(queryName: "FilmPeopleFragmentQuery")
+  @refetchable(queryName: "FilmPeopleFragmentRefetchQuery")
   @argumentDefinitions(first: { type: "Int", defaultValue: 10 }, after: { type: "String" }) {
     title
     characterConnection(first: $first, after: $after) @connection(key: "FilmPeopleFragment_characterConnection") {

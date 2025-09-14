@@ -6,14 +6,14 @@ import { ErrorBoundary } from "react-error-boundary"
 import { HelmetProvider } from "react-helmet-async"
 
 // Components
-import { Scaffold } from "./Scaffold"
-import { FilmsPage } from "./FilmsPage"
-import { FilmPeoplePage } from "./FilmPeoplePage"
-import { FilmPlanetsPage } from "./FilmPlanetsPage"
-import { WouterLoaderProvider } from "../app/WouterLoaderContext"
+import { Scaffold } from "../components/Scaffold"
+import { FilmsPage } from "../pages/FilmsPage"
+import { FilmPeoplePage } from "../pages/FilmPeoplePage"
+import { FilmPlanetsPage } from "../pages/FilmPlanetsPage"
+import { WouterLoaderProvider } from "./WouterLoaderContext"
 
 // Route matching
-import { createWouterRoutes, matchRoute, loadRouteData } from "../wouter-routes"
+import { createWouterRoutes, matchRoute } from "../wouter-routes"
 
 interface WouterAppProps {
   environment: Environment
@@ -22,6 +22,7 @@ interface WouterAppProps {
   loaderData?: any // Data from route loader
 }
 
+// Simplified version with data loading
 const SimpleWouterContent: React.FC<{ environment: Environment; initialLoaderData?: any }> = ({
   environment,
   initialLoaderData,

@@ -1,7 +1,7 @@
 import { graphql, Environment, useLazyLoadQuery } from "react-relay"
 import { preload, usePreloaded } from "./utils"
 import { FilmsPageQuery as FilmsPageQueryType } from "./__generated__/FilmsPageQuery.graphql"
-import { useWouterLoaderData } from "../components/WouterLoaderContext"
+import { useWouterLoaderData } from "../app/WouterLoaderContext"
 
 const FilmsPageQuery = graphql`
   query FilmsPageQuery {

@@ -2,7 +2,7 @@ import React, { Suspense } from "react"
 import ReactDOM from "react-dom/client"
 import { RecordSource } from "relay-runtime"
 import { createEnvironment } from "./environment"
-import { WouterApp } from "./components/WouterApp"
+import { WouterApp } from "./app/WouterApp"
 
 interface InjectedWindow extends Window {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
