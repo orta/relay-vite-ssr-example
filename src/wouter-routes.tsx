@@ -1,31 +1,31 @@
-import { Environment } from "react-relay";
-import { LoaderFn } from "./loaders/utils";
+import { Environment } from "react-relay"
+import { LoaderFn } from "./loaders/utils"
 
 // Route definition for Wouter
 export interface WouterRoute {
-  path: string;
-  component: React.ComponentType<any>;
-  loader?: LoaderFn;
-  children?: WouterRoute[];
+  path: string
+  component: React.ComponentType<any>
+  loader?: LoaderFn
+  children?: WouterRoute[]
 }
 
 // Route matching result
 export interface RouteMatch {
-  route: WouterRoute;
-  params: Record<string, string>;
-  pathname: string;
+  route: WouterRoute
+  params: Record<string, string>
+  pathname: string
 }
 
 // Import components and loaders
-import { Scaffold } from "./components/Scaffold";
-import { FilmsPage } from "./components/FilmsPage";
-import { loadFilmsPageQuery } from "./loaders/FilmsPage";
-import { FilmScaffold } from "./components/FilmScaffold";
-import { loadFilmScaffoldQuery } from "./loaders/FilmScaffold";
-import { FilmPeoplePage } from "./components/FilmPeoplePage";
-import { loadFilmPeoplePageQuery } from "./loaders/FilmPeoplePage";
-import { FilmPlanetsPage } from "./components/FilmPlanetsPage";
-import { loadFilmPlanetsPageQuery } from "./loaders/FilmPlanetsPage";
+import { Scaffold } from "./components/Scaffold"
+import { FilmsPage } from "./components/FilmsPage"
+import { loadFilmsPageQuery } from "./loaders/FilmsPage"
+import { FilmScaffold } from "./components/FilmScaffold"
+import { loadFilmScaffoldQuery } from "./loaders/FilmScaffold"
+import { FilmPeoplePage } from "./components/FilmPeoplePage"
+import { loadFilmPeoplePageQuery } from "./loaders/FilmPeoplePage"
+import { FilmPlanetsPage } from "./components/FilmPlanetsPage"
+import { loadFilmPlanetsPageQuery } from "./loaders/FilmPlanetsPage"
 
 export const createWouterRoutes = (environment: Environment): WouterRoute[] => [
   {
@@ -34,7 +34,7 @@ export const createWouterRoutes = (environment: Environment): WouterRoute[] => [
     loader: loadFilmPeoplePageQuery(environment),
   },
   {
-    path: "/film/:id/planets", 
+    path: "/film/:id/planets",
     component: FilmPlanetsPage,
     loader: loadFilmPlanetsPageQuery(environment),
   },
@@ -48,74 +48,71 @@ export const createWouterRoutes = (environment: Environment): WouterRoute[] => [
     component: FilmsPage,
     loader: loadFilmsPageQuery(environment),
   },
-];
+]
 
 // Simple path-to-regexp style matcher
 function pathToRegexp(path: string): [RegExp, string[]] {
-  const keys: string[] = [];
+  const keys: string[] = []
   const pattern = path
     .replace(/\/:([^\/]+)/g, (_, key) => {
-      keys.push(key);
-      return '/([^/]+)';
+      keys.push(key)
+      return "/([^/]+)"
     })
-    .replace(/\//g, '\\/');
-  
-  return [new RegExp(`^${pattern}$`), keys];
+    .replace(/\//g, "\\/")
+
+  return [new RegExp(`^${pattern}$`), keys]
 }
 
 // Match URL to routes and extract params
 export function matchRoute(pathname: string, routes: WouterRoute[]): RouteMatch | null {
   for (const route of routes) {
     // Try to match current route
-    const [regex, keys] = pathToRegexp(route.path);
-    const match = pathname.match(regex);
-    
+    const [regex, keys] = pathToRegexp(route.path)
+    const match = pathname.match(regex)
+
     if (match) {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = {}
       keys.forEach((key, index) => {
-        params[key] = match[index + 1];
-      });
-      
+        params[key] = match[index + 1]
+      })
+
       // If there are children, try to find a more specific match first
       if (route.children) {
-        const childMatch = matchRoute(pathname, route.children);
+        const childMatch = matchRoute(pathname, route.children)
         if (childMatch) {
-          return childMatch;
+          return childMatch
         }
       }
-      
+
       // Return this route if no child match found
-      return { route, params, pathname };
+      return { route, params, pathname }
     }
   }
-  
-  return null;
+
+  return null
 }
 
 // Load data for a matched route
-export async function loadRouteData(
-  match: RouteMatch,
-  request: Request
-): Promise<any> {
+export async function loadRouteData(match: RouteMatch, request: Request): Promise<any> {
   if (!match.route.loader) {
-    return null;
+    return null
   }
-  
+
   try {
     return await match.route.loader({
       request,
       params: match.params,
-    });
+    })
   } catch (error) {
-    console.error('Route loader error:', error);
-    throw error;
+    console.error("Route loader error:", error)
+    throw error
   }
 }
 
 // Context type for SSR
 export interface WouterSSRContext {
-  route: RouteMatch;
-  loaderData: any;
-  environment: Environment;
-  pathname: string;
+  route: RouteMatch
+  loaderData: any
+  environment: Environment
+  pathname: string
 }

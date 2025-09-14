@@ -1,11 +1,4 @@
-import {
-  Environment,
-  FetchFunction,
-  Network,
-  RecordSource,
-  Store,
-  Observable,
-} from "relay-runtime";
+import { Environment, FetchFunction, Network, RecordSource, Store, Observable } from "relay-runtime"
 
 const createFetchFunction =
   (url: string): FetchFunction =>
@@ -17,16 +10,16 @@ const createFetchFunction =
         query: params.text,
         variables,
       }),
-    });
+    })
 
-    return Observable.from(response.then((data) => data.json()));
-  };
+    return Observable.from(response.then((data) => data.json()))
+  }
 
 /**
  * Creates a new Relay environment instance for managing (fetching, storing) GraphQL data.
  */
 export const createEnvironment = (url: string, records: RecordSource) => {
-  const network = Network.create(createFetchFunction(url));
-  const store = new Store(records);
-  return new Environment({ store, network });
-};
+  const network = Network.create(createFetchFunction(url))
+  const store = new Store(records)
+  return new Environment({ store, network })
+}

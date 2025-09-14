@@ -1,41 +1,37 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react"
 
 interface WouterLoaderContextType {
-  loaderData: any;
+  loaderData: any
 }
 
-const WouterLoaderContext = createContext<WouterLoaderContextType | null>(null);
+const WouterLoaderContext = createContext<WouterLoaderContextType | null>(null)
 
 export const WouterLoaderProvider: React.FC<{
-  children: React.ReactNode;
-  loaderData: any;
+  children: React.ReactNode
+  loaderData: any
 }> = ({ children, loaderData }) => {
-  return (
-    <WouterLoaderContext.Provider value={{ loaderData }}>
-      {children}
-    </WouterLoaderContext.Provider>
-  );
-};
+  return <WouterLoaderContext.Provider value={{ loaderData }}>{children}</WouterLoaderContext.Provider>
+}
 
 export const useWouterLoaderData = () => {
-  const context = useContext(WouterLoaderContext);
-  
+  const context = useContext(WouterLoaderContext)
+
   // During hydration, check if loader data is available in window
-  if (!context?.loaderData && typeof window !== 'undefined') {
-    const windowLoaderData = (window as any).__LOADER_DATA;
-    console.log('🔍 Using window.__LOADER_DATA:', windowLoaderData);
+  if (!context?.loaderData && typeof window !== "undefined") {
+    const windowLoaderData = (window as any).__LOADER_DATA
+    console.log("🔍 Using window.__LOADER_DATA:", windowLoaderData)
     if (windowLoaderData) {
-      return windowLoaderData;
+      return windowLoaderData
     }
   }
-  
+
   if (!context) {
-    throw new Error("useWouterLoaderData must be used within a WouterLoaderProvider");
+    throw new Error("useWouterLoaderData must be used within a WouterLoaderProvider")
   }
-  
-  console.log('🔍 Using context loader data:', context.loaderData);
-  return context.loaderData;
-};
+
+  console.log("🔍 Using context loader data:", context.loaderData)
+  return context.loaderData
+}
 
 // Check if we're in a server environment
-const isServer = typeof window === 'undefined';
+const isServer = typeof window === "undefined"

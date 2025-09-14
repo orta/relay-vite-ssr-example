@@ -1,6 +1,6 @@
-import { graphql, useFragment } from "react-relay";
-import { PlanetCardFragment$key } from "./__generated__/PlanetCardFragment.graphql";
-import { Card } from "./Cards";
+import { graphql, useFragment } from "react-relay"
+import { PlanetCardFragment$key } from "./__generated__/PlanetCardFragment.graphql"
+import { Card } from "./Cards"
 
 const PlanetCardFragment = graphql`
   fragment PlanetCardFragment on Planet {
@@ -14,24 +14,15 @@ const PlanetCardFragment = graphql`
     climates
     terrains
   }
-`;
+`
 
 interface Props {
-  planet: PlanetCardFragment$key;
+  planet: PlanetCardFragment$key
 }
 
 export const PlanetCard = ({ planet: planetFragment }: Props) => {
-  const {
-    name,
-    diameter,
-    gravity,
-    orbitalPeriod,
-    rotationPeriod,
-    surfaceWater,
-    population,
-    climates,
-    terrains,
-  } = useFragment(PlanetCardFragment, planetFragment);
+  const { name, diameter, gravity, orbitalPeriod, rotationPeriod, surfaceWater, population, climates, terrains } =
+    useFragment(PlanetCardFragment, planetFragment)
   return (
     <Card
       title={name}
@@ -46,5 +37,5 @@ export const PlanetCard = ({ planet: planetFragment }: Props) => {
         Terrains: terrains?.join(", "),
       }}
     />
-  );
-};
+  )
+}

@@ -1,20 +1,16 @@
-import { graphql, usePaginationFragment } from "react-relay";
-import { Helmet } from "react-helmet-async";
-import { FilmPlanetsFragment$key } from "./__generated__/FilmPlanetsFragment.graphql";
-import { Cards } from "./Cards";
-import { PlanetCard } from "./PlanetCard";
-import { LoadMore } from "./LoadMore";
+import { graphql, usePaginationFragment } from "react-relay"
+import { Helmet } from "react-helmet-async"
+import { FilmPlanetsFragment$key } from "./__generated__/FilmPlanetsFragment.graphql"
+import { Cards } from "./Cards"
+import { PlanetCard } from "./PlanetCard"
+import { LoadMore } from "./LoadMore"
 
 const FilmPlanetsFragment = graphql`
   fragment FilmPlanetsFragment on Film
   @refetchable(queryName: "FilmPlanetsFragmentQuery")
-  @argumentDefinitions(
-    first: { type: "Int", defaultValue: 10 }
-    after: { type: "String" }
-  ) {
+  @argumentDefinitions(first: { type: "Int", defaultValue: 10 }, after: { type: "String" }) {
     title
-    planetConnection(first: $first, after: $after)
-      @connection(key: "FilmPlanetsFragment_planetConnection") {
+    planetConnection(first: $first, after: $after) @connection(key: "FilmPlanetsFragment_planetConnection") {
       edges {
         node {
           id
@@ -23,10 +19,10 @@ const FilmPlanetsFragment = graphql`
       }
     }
   }
-`;
+`
 
 interface Props {
-  film: FilmPlanetsFragment$key;
+  film: FilmPlanetsFragment$key
 }
 
 export const FilmPlanets = ({ film: filmFragment }: Props) => {
@@ -35,21 +31,14 @@ export const FilmPlanets = ({ film: filmFragment }: Props) => {
     loadNext,
     hasNext,
     isLoadingNext,
-  } = usePaginationFragment(FilmPlanetsFragment, filmFragment);
+  } = usePaginationFragment(FilmPlanetsFragment, filmFragment)
   return (
     <>
       <Helmet title={`${title} | Planets`} />
       <Cards>
-        {planetConnection?.edges?.map(
-          (edge) =>
-            edge?.node && <PlanetCard key={edge.node.id} planet={edge.node} />,
-        )}
+        {planetConnection?.edges?.map((edge) => edge?.node && <PlanetCard key={edge.node.id} planet={edge.node} />)}
       </Cards>
-      <LoadMore
-        loadMore={loadNext}
-        hasMore={hasNext}
-        isLoading={isLoadingNext}
-      />
+      <LoadMore loadMore={loadNext} hasMore={hasNext} isLoading={isLoadingNext} />
     </>
-  );
-};
+  )
+}

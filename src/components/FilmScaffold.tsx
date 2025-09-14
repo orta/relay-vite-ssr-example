@@ -1,14 +1,14 @@
-import { useFilmScaffoldQuery } from "../loaders/FilmScaffold";
-import { Link } from "wouter";
+import { useFilmScaffoldQuery } from "../loaders/FilmScaffold"
+import { Link } from "wouter"
 // Note: Wouter doesn't have Outlet, we'll need to handle this differently
 
 export const FilmScaffold = () => {
   const {
     query: { film },
     variables: { id },
-  } = useFilmScaffoldQuery();
+  } = useFilmScaffoldQuery()
   if (!film) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response("Not Found", { status: 404 })
   }
   return (
     <>
@@ -20,5 +20,5 @@ export const FilmScaffold = () => {
       </div>
       {/* TODO: Handle nested routing without Outlet */}
     </>
-  );
-};
+  )
+}

@@ -1,6 +1,6 @@
-import { graphql, useFragment } from "react-relay";
-import { FilmCardFragment$key } from "./__generated__/FilmCardFragment.graphql";
-import { Card } from "./Cards";
+import { graphql, useFragment } from "react-relay"
+import { FilmCardFragment$key } from "./__generated__/FilmCardFragment.graphql"
+import { Card } from "./Cards"
 
 const FilmCardFragment = graphql`
   fragment FilmCardFragment on Film {
@@ -11,15 +11,14 @@ const FilmCardFragment = graphql`
     releaseDate
     producers
   }
-`;
+`
 
 interface Props {
-  film: FilmCardFragment$key;
+  film: FilmCardFragment$key
 }
 
 export const FilmCard = ({ film: filmFragment }: Props) => {
-  const { id, title, episodeID, director, releaseDate, producers } =
-    useFragment(FilmCardFragment, filmFragment);
+  const { id, title, episodeID, director, releaseDate, producers } = useFragment(FilmCardFragment, filmFragment)
   return (
     <Card
       linkTo={`/film/${id}/people`}
@@ -31,5 +30,5 @@ export const FilmCard = ({ film: filmFragment }: Props) => {
         Producers: producers?.join(", "),
       }}
     />
-  );
-};
+  )
+}

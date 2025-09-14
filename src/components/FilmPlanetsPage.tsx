@@ -1,12 +1,12 @@
-import { useFilmPlanetsPageQuery } from "../loaders/FilmPlanetsPage";
-import { FilmPlanets } from "./FilmPlanets";
+import { useFilmPlanetsPageQuery } from "../loaders/FilmPlanetsPage"
+import { FilmPlanets } from "./FilmPlanets"
 
 export const FilmPlanetsPage = () => {
   const {
     query: { film },
-  } = useFilmPlanetsPageQuery();
+  } = useFilmPlanetsPageQuery()
   if (!film) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response("Not Found", { status: 404 })
   }
-  return <FilmPlanets film={film} />;
-};
+  return <FilmPlanets film={film} />
+}
