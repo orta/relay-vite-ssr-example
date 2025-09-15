@@ -1,4 +1,5 @@
-import { Environment } from "react-relay"
+import React from "react"
+import { Route } from "wouter"
 import { LoaderFn } from "./queries/utils"
 
 // Route definition for Wouter
@@ -15,34 +16,6 @@ export interface RouteMatch {
   params: Record<string, string>
   pathname: string
 }
-
-// Import components and loaders
-import { FilmsPage } from "./pages/FilmsPage"
-import { loadFilmsPageQuery } from "./queries/FilmsPageQuery"
-
-import { FilmPeoplePage } from "./pages/FilmPeoplePage"
-import { loadFilmPeoplePageQuery } from "./queries/FilmPeoplePageQuery"
-
-import { FilmPlanetsPage } from "./pages/FilmPlanetsPage"
-import { loadFilmPlanetsPageQuery } from "./queries/FilmPlanetsPageQuery"
-
-export const createWouterRoutes = (environment: Environment): WouterRoute[] => [
-  {
-    path: "/film/:id/people",
-    component: FilmPeoplePage,
-    loader: loadFilmPeoplePageQuery(environment),
-  },
-  {
-    path: "/film/:id/planets",
-    component: FilmPlanetsPage,
-    loader: loadFilmPlanetsPageQuery(environment),
-  },
-  {
-    path: "/",
-    component: FilmsPage,
-    loader: loadFilmsPageQuery(environment),
-  },
-]
 
 // Simple path-to-regexp style matcher
 function pathToRegexp(path: string): [RegExp, string[]] {
@@ -103,10 +76,7 @@ export async function loadRouteData(match: RouteMatch, request: Request): Promis
   }
 }
 
-// Context type for SSR
-export interface WouterSSRContext {
-  route: RouteMatch
-  loaderData: any
-  environment: Environment
-  pathname: string
+// Generate React Router elements from route definitions
+export function createRouteElements(routes: WouterRoute[]): React.ReactElement[] {
+  return routes.map((route, index) => <Route key={route.path + index} path={route.path} component={route.component} />)
 }

@@ -2,7 +2,7 @@ import React, { Suspense } from "react"
 import ReactDOM from "react-dom/client"
 import { RecordSource } from "relay-runtime"
 import { createEnvironment } from "./environment"
-import { WouterApp } from "./app/WouterApp"
+import { App } from "./app/App"
 
 interface InjectedWindow extends Window {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +20,7 @@ ReactDOM.hydrateRoot(
   document.getElementById("root")!,
   <React.StrictMode>
     <Suspense fallback={<div>Loading...</div>}>
-      <WouterApp environment={environment} loaderData={loaderData} />
+      <App environment={environment} loaderData={loaderData} />
     </Suspense>
   </React.StrictMode>,
 )

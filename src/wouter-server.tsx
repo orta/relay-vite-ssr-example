@@ -4,10 +4,10 @@ import { RecordSource } from "relay-runtime"
 import { Environment } from "react-relay"
 import { createEnvironment } from "./environment"
 import { FastifyRequest, FastifyReply } from "fastify"
-// No need to import memoryLocation for SSR
 
-import { WouterApp } from "./app/WouterApp"
-import { createWouterRoutes, matchRoute, loadRouteData, type WouterSSRContext, type RouteMatch } from "./wouter-routes"
+import { App } from "./app/App"
+import { matchRoute, loadRouteData, type RouteMatch } from "./wouter-routes"
+import { createWouterRoutes } from "./app/routes"
 
 // Create fetch request for loaders
 const createFetchRequest = (req: FastifyRequest, res: FastifyReply) => {
@@ -103,7 +103,7 @@ export function renderWouter(
   return renderToPipeableStream(
     <React.StrictMode>
       <Suspense fallback={<div>Loading...</div>}>
-        <WouterApp environment={environment} helmetContext={helmetContext} ssrPath={pathname} loaderData={loaderData} />
+        <App environment={environment} helmetContext={helmetContext} ssrPath={pathname} loaderData={loaderData} />
       </Suspense>
     </React.StrictMode>,
     options,

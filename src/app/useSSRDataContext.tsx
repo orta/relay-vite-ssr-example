@@ -1,20 +1,20 @@
 import React, { createContext, useContext } from "react"
 
-interface WouterLoaderContextType {
+interface SSRContextType {
   loaderData: any
 }
 
-const WouterLoaderContext = createContext<WouterLoaderContextType | null>(null)
+const SSRContext = createContext<SSRContextType | null>(null)
 
 export const WouterLoaderProvider: React.FC<{
   children: React.ReactNode
   loaderData: any
 }> = ({ children, loaderData }) => {
-  return <WouterLoaderContext.Provider value={{ loaderData }}>{children}</WouterLoaderContext.Provider>
+  return <SSRContext.Provider value={{ loaderData }}>{children}</SSRContext.Provider>
 }
 
-export const useWouterLoaderData = () => {
-  const context = useContext(WouterLoaderContext)
+export const useSSRData = () => {
+  const context = useContext(SSRContext)
 
   // During hydration, check if loader data is available in window
   if (!context?.loaderData && typeof window !== "undefined") {

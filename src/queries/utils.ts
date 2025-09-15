@@ -1,7 +1,7 @@
 import { PreloadedQuery, loadQuery, usePreloadedQuery, Environment, useRelayEnvironment } from "react-relay"
 type Params = Record<string, string | undefined>
 import { OperationType, GraphQLTaggedNode } from "relay-runtime"
-import { useWouterLoaderData } from "../app/WouterLoaderContext"
+import { useSSRData } from "../app/useSSRDataContext"
 
 export interface LoaderArgs {
   params: Params
@@ -29,7 +29,7 @@ export const preload = <TQuery extends OperationType>(
 }
 
 export const usePreloaded = <TQuery extends OperationType>() => {
-  const loaderData = useWouterLoaderData()
+  const loaderData = useSSRData()
   const environment = useRelayEnvironment()
 
   const { variables, graphql } = loaderData as { variables: TQuery["variables"]; graphql: GraphQLTaggedNode }
@@ -48,7 +48,7 @@ export const useGetMainPageQuery = <TQuery extends OperationType>(
   querySDL: GraphQLTaggedNode,
   vars?: TQuery["variables"],
 ) => {
-  const loaderData = useWouterLoaderData()
+  const loaderData = useSSRData()
   const environment = useRelayEnvironment()
 
   if (loaderData) {

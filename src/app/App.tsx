@@ -7,26 +7,23 @@ import { HelmetProvider } from "react-helmet-async"
 
 // Components
 import { Scaffold } from "../components/Scaffold"
-import { FilmsPage } from "../pages/FilmsPage"
-import { FilmPeoplePage } from "../pages/FilmPeoplePage"
-import { FilmPlanetsPage } from "../pages/FilmPlanetsPage"
-import { WouterLoaderProvider } from "./WouterLoaderContext"
+import { WouterLoaderProvider } from "./useSSRDataContext"
 
 // Route matching
-import { createWouterRoutes, matchRoute } from "../wouter-routes"
+import { matchRoute, createRouteElements } from "../wouter-routes"
+import { createWouterRoutes } from "./routes"
 
-interface WouterAppProps {
+import "../components/Scaffold.css"
+
+interface AppProps {
   environment: Environment
   helmetContext?: any
   ssrPath?: string // For SSR path
   loaderData?: any // Data from route loader
 }
 
-// Simplified version with data loading
-const SimpleWouterContent: React.FC<{ environment: Environment; initialLoaderData?: any }> = ({
-  environment,
-  initialLoaderData,
-}) => {
+const AppContent: React.FC<{ environment: Environment; initialLoaderData?: any }> = (props) => {
+  const { environment, initialLoaderData } = props
   const [location] = useLocation()
   const [currentLoaderData, setCurrentLoaderData] = useState(initialLoaderData)
 
@@ -39,7 +36,7 @@ const SimpleWouterContent: React.FC<{ environment: Environment; initialLoaderDat
   }
 
   useEffect(() => {
-    console.log("🚀 SimpleWouterContent useEffect triggered:", {
+    console.log("🚀 AppContent useEffect triggered:", {
       location,
       initialLocation,
       hasInitialLoaderData: !!initialLoaderData,
@@ -107,7 +104,17 @@ const SimpleWouterContent: React.FC<{ environment: Environment; initialLoaderDat
 
   return (
     <WouterLoaderProvider loaderData={currentLoaderData}>
-      <div style={{ padding: "10px", backgroundColor: "#f0f0f0", margin: "10px 0" }}>
+      <div
+        style={{
+          padding: "10px",
+          backgroundColor: "#f0f0f0",
+          margin: "10px 0",
+          position: "fixed",
+          top: 10,
+          right: 10,
+          zIndex: 1000,
+        }}
+      >
         <p>🧭 Wouter location: {location}</p>
         <p>📊 Has loader data: {currentLoaderData ? "✅" : "❌"}</p>
         <p>🔧 Loader data type: {currentLoaderData?.graphql?.params?.name || "none"}</p>
@@ -135,9 +142,7 @@ const SimpleWouterContent: React.FC<{ environment: Environment; initialLoaderDat
         <Suspense fallback={<div>Loading route data...</div>}>
           <Scaffold>
             <Switch>
-              <Route path="/" component={FilmsPage} />
-              <Route path="/film/:id/people" component={FilmPeoplePage} />
-              <Route path="/film/:id/planets" component={FilmPlanetsPage} />
+              {createRouteElements(createWouterRoutes(environment))}
               <Route>{() => <div>404 - Page not found</div>}</Route>
             </Switch>
           </Scaffold>
@@ -147,13 +152,13 @@ const SimpleWouterContent: React.FC<{ environment: Environment; initialLoaderDat
   )
 }
 
-export const WouterApp: React.FC<WouterAppProps> = ({ environment, helmetContext, ssrPath, loaderData }) => {
+export const App: React.FC<AppProps> = ({ environment, helmetContext, ssrPath, loaderData }) => {
   return (
     <HelmetProvider context={helmetContext}>
       <ErrorBoundary fallback={<div>Something went wrong!</div>}>
         <RelayEnvironmentProvider environment={environment}>
           <Router ssrPath={ssrPath}>
-            <SimpleWouterContent environment={environment} initialLoaderData={loaderData} />
+            <AppContent environment={environment} initialLoaderData={loaderData} />
           </Router>
         </RelayEnvironmentProvider>
       </ErrorBoundary>

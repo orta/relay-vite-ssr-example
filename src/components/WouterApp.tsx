@@ -10,10 +10,11 @@ import { Scaffold } from "./Scaffold"
 import { FilmsPage } from "../pages/FilmsPage"
 import { FilmPeoplePage } from "../pages/FilmPeoplePage"
 import { FilmPlanetsPage } from "../pages/FilmPlanetsPage"
-import { WouterLoaderProvider } from "../app/WouterLoaderContext"
+import { WouterLoaderProvider } from "../app/useSSRDataContext"
 
 // Route matching
-import { createWouterRoutes, matchRoute } from "../wouter-routes"
+import { matchRoute } from "../wouter-routes"
+import { createWouterRoutes } from "../app/routes"
 
 interface WouterAppProps {
   environment: Environment
