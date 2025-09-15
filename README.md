@@ -1,6 +1,6 @@
 # Relay Vite SSR Example
 
-A complete example of server-side rendering with React, Relay, and Vite using Wouter for routing. This demonstrates the Puzzmo tech stack approach to SSR with GraphQL.
+A complete example of server-side rendering with React, Relay, and Vite using Wouter for routing. This demonstrates the Puzzmo tech stack / Artsy Omakase approach to SSR.
 
 **Special thanks to the excellent guide at [aqora.io](https://aqora.io/blog/implementing-streaming-ssr-with-react-relay-and-vite-899908) which provided the foundation for this implementation.**
 
