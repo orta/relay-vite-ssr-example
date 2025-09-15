@@ -29,6 +29,6 @@ export const useSSRData = () => {
     throw new Error("useWouterLoaderData must be used within a WouterLoaderProvider")
   }
 
-  console.log("🔍 Using context loader data:", context.loaderData)
+  // console.log("🔍 Using context loader data:", context.loaderData)
   return context.loaderData
 }

@@ -1,4 +1,11 @@
-import { PreloadedQuery, loadQuery, usePreloadedQuery, Environment, useRelayEnvironment } from "react-relay"
+import {
+  PreloadedQuery,
+  loadQuery,
+  usePreloadedQuery,
+  Environment,
+  useRelayEnvironment,
+  useLazyLoadQuery,
+} from "react-relay"
 type Params = Record<string, string | undefined>
 import { OperationType, GraphQLTaggedNode } from "relay-runtime"
 import { useSSRData } from "../app/useSSRDataContext"
@@ -24,7 +31,9 @@ export const preload = <TQuery extends OperationType>(
   return {
     graphql,
     variables,
-    query: loadQuery<TQuery>(environment, graphql, variables),
+    query: loadQuery<TQuery>(environment, graphql, variables, {
+      fetchPolicy: "store-or-network", // Prefer cache when available
+    }),
   }
 }
 
@@ -49,21 +58,17 @@ export const useGetMainPageQuery = <TQuery extends OperationType>(
   vars?: TQuery["variables"],
 ) => {
   const loaderData = useSSRData()
-  const environment = useRelayEnvironment()
 
-  if (loaderData) {
-    vars = loaderData.variables as TQuery["variables"]
-    querySDL = loaderData.graphql
-    // const { variables, graphql } = loaderData as { variables: TQuery["variables"]; graphql: GraphQLTaggedNode }
-    // Always create a fresh PreloadedQuery from the current environment
-    // This ensures we use the environment's record source data (populated from __RECORD_SOURCE)
-  }
+  const hasLoaderData = !!loaderData
+  const finalVars = hasLoaderData ? (loaderData.variables as TQuery["variables"]) : vars
 
-  // TODO: Maybe we need to memoize the vars?
+  // Use lazy loading with proper cache policy to handle both SSR and client navigation
+  const lazyResult = useLazyLoadQuery<TQuery>(querySDL, finalVars || {}, {
+    fetchPolicy: "store-or-network", // Always check cache first, fallback to network
+  })
 
-  const query = loadQuery<TQuery>(environment, querySDL, vars || {})
   return {
-    variables: vars || {},
-    query: usePreloadedQuery<TQuery>(querySDL, query),
+    variables: finalVars || {},
+    query: lazyResult,
   }
 }
