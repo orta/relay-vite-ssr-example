@@ -32,6 +32,3 @@ export const useWouterLoaderData = () => {
   console.log("🔍 Using context loader data:", context.loaderData)
   return context.loaderData
 }
-
-// Check if we're in a server environment
-const isServer = typeof window === "undefined"
