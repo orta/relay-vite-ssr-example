@@ -32,9 +32,6 @@ export const usePreloaded = <TQuery extends OperationType>() => {
   const loaderData = useWouterLoaderData()
   const environment = useRelayEnvironment()
 
-  if (!loaderData)
-    throw new Error("No loader data available. This component must be rendered within a route that has a loader.")
-
   const { variables, graphql } = loaderData as { variables: TQuery["variables"]; graphql: GraphQLTaggedNode }
 
   // Always create a fresh PreloadedQuery from the current environment
@@ -44,5 +41,29 @@ export const usePreloaded = <TQuery extends OperationType>() => {
   return {
     variables: variables || {},
     query: usePreloadedQuery<TQuery>(graphql, query),
+  }
+}
+
+export const useGetMainPageQuery = <TQuery extends OperationType>(
+  querySDL: GraphQLTaggedNode,
+  vars?: TQuery["variables"],
+) => {
+  const loaderData = useWouterLoaderData()
+  const environment = useRelayEnvironment()
+
+  if (loaderData) {
+    vars = loaderData.variables as TQuery["variables"]
+    querySDL = loaderData.graphql
+    // const { variables, graphql } = loaderData as { variables: TQuery["variables"]; graphql: GraphQLTaggedNode }
+    // Always create a fresh PreloadedQuery from the current environment
+    // This ensures we use the environment's record source data (populated from __RECORD_SOURCE)
+  }
+
+  // TODO: Maybe we need to memoize the vars?
+
+  const query = loadQuery<TQuery>(environment, querySDL, vars || {})
+  return {
+    variables: vars || {},
+    query: usePreloadedQuery<TQuery>(querySDL, query),
   }
 }
