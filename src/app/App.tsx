@@ -1,7 +1,6 @@
 import React, { useEffect, useState, Suspense } from "react"
 import { Router, Route, Switch, useLocation } from "wouter"
-import { RelayEnvironmentProvider } from "react-relay"
-import { Environment } from "react-relay"
+import { RelayEnvironmentProvider, Environment } from "react-relay"
 import { ErrorBoundary } from "react-error-boundary"
 import { HelmetProvider } from "react-helmet-async"
 
